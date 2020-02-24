@@ -1,5 +1,7 @@
 // 关于webpack的多有环境的共同的配置
 const path = require('path');//path是Nodejs中的基本包,用来处理路径
+const createVueLoaderOptions = require("./vue-loader.config");
+const isDev = process.env.NODE_ENV === 'development';
 
 const config = {
     target: 'web',//设置webpack的编译目标是web平台
@@ -12,7 +14,8 @@ const config = {
         rules: [
             {
                 test: /\.vue$/,
-                loader: 'vue-loader'//处理.vue文件
+                loader: 'vue-loader', // 处理.vue文件
+                options: createVueLoaderOptions(isDev)
             }, {
                 test: /\.jsx$/,
                 loader: 'babel-loader'//处理jsx文件

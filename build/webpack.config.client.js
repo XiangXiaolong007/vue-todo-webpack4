@@ -94,6 +94,9 @@ if(isDev) {
             }),
             new webpack.optimize.RuntimeChunkPlugin({
                 name: 'runtime'//将app.js文件中一些关于webpack文件的配置单独打包出为一个文件,用于解决部分浏览器长缓存问题 
+            }),
+            new MiniCssExtractPlugin({
+                filename: 'style.css'
             })
         ])
     })
