@@ -35,16 +35,65 @@ if(isDev) {
             rules: [
                 {
                     test: /\.styl(us)?$/,
-                    use: [
-                        'vue-style-loader',//将css写入到html中去 vue-loader版本大于^15.0时要求使用vue-style-loader
-                        'css-loader',//css-loader处理css
+                    // use: [
+                    //     'vue-style-loader',//将css写入到html中去 vue-loader版本大于^15.0时要求使用vue-style-loader
+                    //     // 'css-loader',//css-loader处理css
+                    //     // 使用css Modules
+                    //     {
+                    //         loader: 'css-loader',
+                    //         options: {
+                    //             // 开启CSS Modules
+                    //             modules: true,
+                    //             camelCase: true,
+                    //             // 自定义生成的类名
+                    //             localIdentName: '[path]-[name]-[hash:base64:5]' // 编译之后生成的新的css名称
+                    //         }
+                    //     }, {
+                    //         loader: 'postcss-loader',
+                    //         options: {
+                    //             sourceMap: true//stylus-loader和postcss-loader自己都会生成sourceMap,如果前面stylus-loader已生成了sourceMap,那么postcss-loader可以直接引用前面的sourceMap
+                    //         }
+                    //     },
+                    //     'stylus-loader'//处理stylus的css预处理器的问题件,转换成css后,抛给上一层的css-loader
+                    // ]
+
+                    // 只在某些Vue组件中使用 CSS Modules,可以使用oneOf规则并在recourceQuery字符串中检查module字符串
+                    oneOf: [
+                        // 这里匹配`<style module>`
                         {
-                            loader: "postcss-loader",
-                            options: {
-                                sourceMap: true//stylus-loader和postcss-loader自己都会生成sourceMap,如果前面stylus-loader已生成了sourceMap,那么postcss-loader可以直接引用前面的sourceMap
-                            }
+                            resourceQuery: /module/,
+                            use: [
+                                'vue-style-loader',
+                                {
+                                    loader: 'css-loader',
+                                    options: {
+                                        modules: true,
+                                        camelCase: true,
+                                        localIdentName: '[path]-[name]-[hash:base64:5]'
+                                    }
+                                }, {
+                                    loader: 'postcss-loader',
+                                    options: {
+                                        sourceMap: true
+                                    }
+                                },
+                                'stylus-loader'
+                            ]
                         },
-                        'stylus-loader'//处理stylus的css预处理器的问题件,转换成css后,抛给上一层的css-loader
+                        // 这里匹配普通的`<style>`或者`<style scoped>`
+                        {
+                            use: [
+                                'vue-style-loader',
+                                'css-loader',
+                                {
+                                    loader: 'postcss-loader',
+                                    options: {
+                                        sourceMap: true
+                                    }
+                                },
+                                'stylus-loader'
+                            ]
+                        }
                     ]
                 }
             ]
@@ -52,7 +101,7 @@ if(isDev) {
         devServer,
         plugins: defaultPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),
-            new webpack.NoEmitOnErrorsPlugin()
+            new webpack.NoEmitOnErrorsPlugin() // 过滤error
         ])
     })
 } else {
@@ -68,17 +117,54 @@ if(isDev) {
             rules: [
                 {
                     test: /\.styl(us)?$/,
-                    use: [
-                        MiniCssExtractPlugin.loader,
-                        // 'vue-style-loader',
-                        'css-loader',
+                    // use: [
+                    //     MiniCssExtractPlugin.loader,
+                    //     // 'vue-style-loader',
+                    //     'css-loader',
+                    //     {
+                    //         loader: 'postcss-loader',
+                    //         options: {
+                    //             sourceMap: true
+                    //         }
+                    //     },
+                    //     'stylus-loader'
+                    // ]
+                    oneOf: [
+                        // 这里匹配`<style module>`
                         {
-                            loader: 'postcss-loader',
-                            options: {
-                                sourceMap: true
-                            }
+                            resourceQuery: /module/,
+                            use: [
+                                MiniCssExtractPlugin.loader,
+                                {
+                                    loader: 'css-loader',
+                                    options: {
+                                        modules: true,
+                                        camelCase: true,
+                                        localIdentName: '[hash:base64:5]'
+                                    }
+                                }, {
+                                    loader: 'postcss-loader',
+                                    options: {
+                                        sourceMap: true
+                                    }
+                                },
+                                'stylus-loader'
+                            ]
                         },
-                        'stylus-loader'
+                        // 这里匹配普通的`<style>`或者`<style scoped>`
+                        {
+                            use: [
+                                MiniCssExtractPlugin.loader,
+                                'css-loader',
+                                {
+                                    loader: 'postcss-loader',
+                                    options: {
+                                        sourceMap: true
+                                    }
+                                },
+                                'stylus-loader'
+                            ]
+                        }
                     ]
                 }
             ]
